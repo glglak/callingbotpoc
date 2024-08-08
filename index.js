@@ -55,6 +55,8 @@ require('dotenv').config();
             clientState: "secretClientValue"
         };
 
+        const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
         const response = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
             method: 'POST',
             headers: {
@@ -79,6 +81,8 @@ require('dotenv').config();
     async function interceptCallMedia(callId) {
         try {
             const accessToken = await getAccessToken();
+
+            const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
             const response = await fetch(`https://graph.microsoft.com/v1.0/communications/calls/${callId}/media`, {
                 method: 'GET',
