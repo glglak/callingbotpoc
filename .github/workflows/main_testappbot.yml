@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - testappbot
 
 on:
@@ -25,10 +22,14 @@ jobs:
         run: |
           npm install
           npm run build --if-present
-          
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          mkdir -p deploy
+          rsync -av --exclude='node_modules' . deploy/
+          cd deploy
+          zip -r ../release.zip .
+          cd ..
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -53,19 +54,12 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5B2B28C1F78A4B5BAC3ABC0C9FAA81ED }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_BE90A68820A04D298396D8B0BF0BB267 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E15735DD3DE1440C91D266C224832379 }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'testappbot'
-          slot-name: 'Production'
-          package: .
-          
+      - name: Deploy to Azure Web App using ZIP
+        run: |
+          az webapp deployment source config-zip --resource-group myResourceGroup --name testappbot --src release.zip
