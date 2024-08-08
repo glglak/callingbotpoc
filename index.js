@@ -1,22 +1,19 @@
-require('dotenv').config();
+const appInsights = require('applicationinsights');
+const { ManagedIdentityCredential } = require('@azure/identity');
 const express = require('express');
 const bodyParser = require('body-parser');
-const { ManagedIdentityCredential } = require('@azure/identity');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 (async () => {
-    // Dynamically import node-fetch
-    const fetch = (await import('node-fetch')).default;
-
-    // Initialize Application Insights
-    const appInsights = require('applicationinsights');
+    // Initialize Application Insights with connection string
     if (process.env.APPINSIGHTS_CONNECTION_STRING) {
-        appInsights.setup().setInternalLogging(false, true).setSendLiveMetrics(true).setUseDiskRetryCaching(true);
-        appInsights.defaultClient.config.connectionString = process.env.APPINSIGHTS_CONNECTION_STRING;
-    } else if (process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
-        appInsights.setup(process.env.APPINSIGHTS_INSTRUMENTATIONKEY);
+        appInsights.setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+            .setInternalLogging(false, true)
+            .setSendLiveMetrics(true)
+            .setUseDiskRetryCaching(true);
     } else {
-        console.error('No instrumentation key or connection string was provided to the Azure Monitor Exporter');
+        console.error('No connection string provided for Azure Monitor Exporter');
     }
 
     appInsights.start();
