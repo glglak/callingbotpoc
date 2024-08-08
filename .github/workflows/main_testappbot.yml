@@ -64,4 +64,4 @@ jobs:
 
       - name: Deploy to Azure Web App using ZIP
         run: |
-          az webapp deployment source config-zip --resource-group myResourceGroup --name testappbot --src release.zip
+          az webapp deployment source config-zip --resource-group linkawypoc --name testappbot --src release.zip
